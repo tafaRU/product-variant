@@ -5,8 +5,8 @@
 
 def post_init_hook(cr, registry):
     """
-    This post-init-hook will update all existing product.product
-    sale_delay
+    This post-init-hook will update only product.product
+    sale_delay values in case they are not set
     """
     cr.execute(
         """
@@ -14,4 +14,5 @@ def post_init_hook(cr, registry):
         SET sale_delay = product_template.sale_delay
         FROM product_template
         WHERE product_template.id = product_product.product_tmpl_id
+        AND product_product.sale_delay IS NULL
         """)

@@ -28,9 +28,7 @@ class ProductVariantAvailableInPos(TransactionCase):
 
     def test_post_init_hook(self):
         from ..hooks import post_init_hook
-        self.product_template.product_variant_ids.write({
-            'sale_delay': 9.0,
-        })
+        # case where post_init_hook is applied
         post_init_hook(self.cr, None)
         self.product_template.product_variant_ids.invalidate_cache()
         self.assertEqual(
@@ -39,6 +37,15 @@ class ProductVariantAvailableInPos(TransactionCase):
         self.assertEqual(
             self.product_template.sale_delay,
             self.product_2.sale_delay)
+        # case where post_init_hook is not applied
+        self.product_template.product_variant_ids.write({
+            'sale_delay': 9.0,
+        })
+        post_init_hook(self.cr, None)
+        self.product_template.product_variant_ids.invalidate_cache()
+        self.assertEqual(self.product_template.sale_delay, 8.0)
+        self.assertEqual(self.product_1.sale_delay, 9.0)
+        self.assertEqual(self.product_2.sale_delay, 9.0)
 
     def test_create_product_template(self):
         new_template = self.template_model.create({
